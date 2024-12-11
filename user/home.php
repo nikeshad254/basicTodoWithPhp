@@ -100,8 +100,8 @@ if (isset($_POST['updBtn']) && $_POST['updBtn'] == 'delete') {
                 todos.forEach((todo) => {
                     inHtml += `
                             <li>
-                                <form action="" method="POST">
-                                    <input type="checkbox" name="isComplete" ${todo.isComplete ==="1"? 'checked': ''}>
+                                <form action="" method="POST" data-todoid="${todo.id}">
+                                    <input type="checkbox" class="isComplete" name="isComplete" ${todo.isComplete ==="1"? 'checked': ''}>
                                     <input type="hidden" name="todoId" value="${todo.id}">
                                     <input type="text" name="task" placeholder="Task..." value="${todo.task}">
                                     <button name="updBtn" value="edit">📝</button>
@@ -119,6 +119,26 @@ if (isset($_POST['updBtn']) && $_POST['updBtn'] == 'delete') {
     }
 
     getTodos();
+
+    todosContainer.addEventListener("click", e => {
+        if (!e.target.classList.contains("isComplete")) {
+            return;
+        }
+        const parentNode = e.target.parentNode;
+        const isComplete = e.target.checked ? 1 : 0;
+        const todoId = parentNode.dataset.todoid;
+
+        var xmlhttp = new XMLHttpRequest();
+        xmlhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+                console.log(this.responseText);
+            }
+        };
+        xmlhttp.open("POST", "../api/todo.php", true);
+        xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+        xmlhttp.send(`updateCheckBox=1&isComplete=${isComplete}&todoId=${todoId}`);
+        getTodos();
+    })
 </script>
 
 <?php include("../inc/footer.php"); ?>
